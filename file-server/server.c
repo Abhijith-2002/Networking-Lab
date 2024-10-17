@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 8085
+#define PORT 8080
 #define BUFFER_SIZE 1024
 #define BACKLOG 3
 
@@ -36,16 +36,15 @@ int main() {
 
     printf("\nServer listening on port %d\n", PORT);
 
-    while (1) {
-        if ((new_sockfd = accept(sockfd, (struct sockaddr *)&their_addr, (socklen_t*)&addrlen)) == -1) {
+    if ((new_sockfd = accept(sockfd, (struct sockaddr *)&their_addr, (socklen_t*)&addrlen)) == -1) {
             perror("accept");
             close(sockfd);
             exit(1);
         }
 
-        printf("\nServer: Got connection from %s\n", inet_ntoa(their_addr.sin_addr));
+    printf("\nServer: Got connection from %s\n", inet_ntoa(their_addr.sin_addr));
 
-        while (1) {
+    while (1) {
             memset(buffer, 0, BUFFER_SIZE);
             int bytes_received = recv(new_sockfd,buffer,BUFFER_SIZE,0);
             if (bytes_received <= 0) {
@@ -60,15 +59,15 @@ int main() {
                 perror("File not found!");
                 const char *msg = "file not found";
                 send(new_sockfd, msg, strlen(msg), 0);
+                break;
             } else {
                 while(fgets(buffer,BUFFER_SIZE,file)!=NULL) {
                     send(new_sockfd,buffer,BUFFER_SIZE,0);
                 }
+                break;
             }
         }
-        close(new_sockfd); 
-    }
-
+    close(new_sockfd);
     close(sockfd); 
     return 0;
 }

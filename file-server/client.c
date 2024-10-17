@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
-#define PORT 8085
+#define PORT 8080
 #define BUFFER_SIZE 1024
 #define IP "127.0.0.1"
 
@@ -49,17 +49,21 @@ int main() {
         memset(buffer, 0, BUFFER_SIZE);
 
         int valread;
+        FILE *file;
+        file = fopen("retrieved.txt","a");
         while ((valread = recv(sockfd, buffer, BUFFER_SIZE, 0)) > 0) {
             if (strncmp(buffer, "file not found", strlen("file not found")) == 0) {
-                printf("File not found!\n");
+                printf("\nFile not found!\n");
                 break;
             }
+            fprintf(file,"%s",buffer);
             printf("%s", buffer);  
             memset(buffer, 0, BUFFER_SIZE);  
         }
-
+        fclose(file);
+        printf("\nFile retrieved succesfully ! File saved as retrieved.txt !");
         if (valread <= 0) {
-            printf("\nServer closed the connection or an error occurred.\n");
+            printf("\nConnection terminated !\n");
             break;
         }
     }
