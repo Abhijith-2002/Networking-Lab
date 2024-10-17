@@ -3,8 +3,15 @@
 #include <arpa/inet.h>
 #include <string.h>
 #include <unistd.h>
+/*The above imports are actually enough in latest C distributions as all other necessary modules
+are linked within arpa/inet.h . But chances are if you are using an older distribution you might
+have to include these additional modules too*/
+#include<sys/socket.h>
+#include<sys/types.h>
+#include<netinet/in.h>
+#include<netdb.h>
 
-#define PORT 8086
+#define PORT 8090
 #define BACKLOG 10
 #define BUFFERSIZE 1024
 
@@ -42,20 +49,19 @@ int main() {
             close(sockfd);
             exit(1);
         }
-
+        char name[BUFFERSIZE];
+        int valread = recv(newsockfd, name, BUFFERSIZE, 0);
+        if (valread > 0) {
+            name[valread] = '\0'; 
+            printf("\n%s has joined the server!\n", name);
+            fflush(stdout);
+        } else {
+            perror("recv name");
+            close(newsockfd);
+            exit(1);
+        }
         if (fork() == 0) {
             close(sockfd);
-            char name[BUFFERSIZE];
-            int valread = recv(newsockfd, name, BUFFERSIZE, 0);
-            if (valread > 0) {
-                name[valread] = '\0'; 
-                printf("\n%s has joined the server!\n", name);
-            } else {
-                perror("recv name");
-                close(newsockfd);
-                exit(1);
-            }
-
             while (1) {
                 char buffer[BUFFERSIZE];
                 valread = recv(newsockfd, buffer, BUFFERSIZE, 0);

@@ -3,8 +3,15 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+/*The above imports are actually enough in latest C distributions as all other necessary modules
+are linked within arpa/inet.h . But chances are if you are using an older distribution you might
+have to include these additional modules too*/
+#include<sys/socket.h>
+#include<sys/types.h>
+#include<netinet/in.h>
+#include<netdb.h>
 
-#define PORT 8086
+#define PORT 8090
 #define BUFFER_SIZE 1024
 #define IP "127.0.0.1"
 
@@ -41,16 +48,10 @@ int main() {
     printf("\nConnected to the chat server as %s\n", name);
 
     while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
         printf("\nEnter message to send: ");
         fgets(buffer, BUFFER_SIZE, stdin);
-        buffer[strcspn(buffer, "\n")] = 0; 
-
-        if (send(sockfd, buffer, strlen(buffer), 0) == -1) {
-            perror("send");
-            close(sockfd);
-            exit(1);
-        }
+        buffer[strcspn(buffer, "\n")] = 0;
+        send(sockfd, buffer, strlen(buffer), 0);
     }
 
     close(sockfd);
