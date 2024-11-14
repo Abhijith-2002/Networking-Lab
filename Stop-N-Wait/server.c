@@ -10,7 +10,7 @@
 #include<time.h>
 
 #define BUFFERSIZE 1024
-#define PORT 4001
+#define PORT 4002
 #define TOTALFRAMES 10
 #define LOSSPROB 0.2
 

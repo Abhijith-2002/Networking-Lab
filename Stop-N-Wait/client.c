@@ -7,7 +7,7 @@
 #include<sys/socket.h>
 #include<unistd.h>
 
-#define PORT 4001
+#define PORT 4002
 #define IP "127.0.0.1"
 #define WINDOWSIZE 4
 #define BUFFERSIZE 1024
@@ -44,31 +44,40 @@ int main() {
         exit(1);
     }
 
-    int base = 0;
     int nextSeqNo = 0;
     Frame buffer[TOTALFRAMES];
+    int waitForAck = 0;
 
     while (nextSeqNo < TOTALFRAMES) {
-        printf("\nEnter the data for Frame-%d: ", nextSeqNo);
-        fgets(dataFrame.buffer, BUFFERSIZE, stdin);
-        dataFrame.seqNo = nextSeqNo;
-        buffer[nextSeqNo] = dataFrame;
+        if (!waitForAck) {
+            printf("\nEnter the data for Frame-%d: ", nextSeqNo);
+            fgets(dataFrame.buffer, BUFFERSIZE, stdin);
+            dataFrame.buffer[strcspn(dataFrame.buffer, "\n")] = 0;
+            dataFrame.seqNo = nextSeqNo;
+            buffer[nextSeqNo] = dataFrame;
+        }
 
-        sendto(sockfd, &dataFrame, framesize, 0, (struct sockaddr *)&server_addr, addrlen);
+        if (sendto(sockfd, &dataFrame, framesize, 0, (struct sockaddr *)&server_addr, addrlen) == -1) {
+            perror("sendto");
+            close(sockfd);
+            exit(1);
+        }
         printf("Frame-%d sent\n", dataFrame.seqNo);
 
         int valread = recvfrom(sockfd, &ackFrame, framesize, 0, (struct sockaddr *)&server_addr, &addrlen);
         if (valread > 0) {
             if (ackFrame.seqNo == nextSeqNo) {
                 printf("ACK received for Frame-%d\n", ackFrame.seqNo);
+                waitForAck = 0;
                 nextSeqNo++;
             } else {
                 printf("Invalid ACK received! Expected ACK for Frame-%d but got Frame-%d\n", nextSeqNo, ackFrame.seqNo);
+                waitForAck = 1;
             }
         } else {
+            perror("recvfrom");
             printf("Timeout occurred! Retransmitting Frame-%d\n", nextSeqNo);
-            sendto(sockfd, &buffer[nextSeqNo], framesize, 0, (struct sockaddr *)&server_addr, addrlen);
-            printf("Frame-%d resent\n", buffer[nextSeqNo].seqNo);
+            waitForAck = 1;
         }
     }
 
