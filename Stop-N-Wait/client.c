@@ -49,6 +49,7 @@ int main() {
 
     while(nextSeqNo<TOTALFRAMES) {
         dataFrame.seqNo = nextSeqNo;
+        buffer[nextSeqNo] = dataFrame;
         sendto(sockfd,&dataFrame,framesize,0,(struct sockaddr *)&server_addr,addrlen);
         printf("Frame-%d sent\n",dataFrame.seqNo);
         int valread = recvfrom(sockfd,&ackFrame,framesize,0,(struct sockaddr *)&server_addr,&addrlen);
@@ -65,7 +66,7 @@ int main() {
             printf("Timeout occured ! Retransmitting Frame-%d",nextSeqNo);
             dataFrame.seqNo = nextSeqNo;
             sendto(sockfd,&dataFrame,framesize,0,(struct sockaddr *)&server_addr,addrlen);
-            printf("Frame-%d resent\n",dataFrame.seqNo);
+            printf("Frame-%d resent\n",buffer[nextSeqNo].seqNo);
         }
 
     }
