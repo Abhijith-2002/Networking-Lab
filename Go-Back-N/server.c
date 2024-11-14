@@ -47,7 +47,7 @@ int main() {
             dataFrame.buffer[BUFFERSIZE - 1] = '\0';
 
             if (dataFrame.seqNo == expectedSeqNo) {
-                printf("Frame-%d received: %s\n", dataFrame.seqNo, dataFrame.buffer);
+                printf("Frame-%d received: %s\n", expectedSeqNo, dataFrame.buffer);
                 ackFrame.seqNo = expectedSeqNo;
                 if ((rand() % 100) / 100.0 > LOSSPROB) {
                     sendto(sockfd, &ackFrame, framesize, 0, (struct sockaddr *)&client_addr, addrlen);

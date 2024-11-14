@@ -50,8 +50,9 @@ int main() {
 
     while (base < TOTALFRAMES) {
         while (nextSeqNo < base + WINDOWSIZE && nextSeqNo < TOTALFRAMES) {
+            printf("\nEnter the data for Frame-%d: ", nextSeqNo);
+            fgets(dataFrame.buffer, BUFFERSIZE, stdin);
             dataFrame.seqNo = nextSeqNo;
-            snprintf(dataFrame.buffer, BUFFERSIZE, "Frame data for sequence number %d", dataFrame.seqNo);
             buffer[nextSeqNo] = dataFrame;
 
             sendto(sockfd, &dataFrame, framesize, 0, (struct sockaddr *)&server_addr, addrlen);
