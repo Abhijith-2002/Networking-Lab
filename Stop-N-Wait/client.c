@@ -52,7 +52,6 @@ int main() {
         if (!waitForAck) {
             printf("\nEnter the data for Frame-%d: ", nextSeqNo);
             fgets(dataFrame.buffer, BUFFERSIZE, stdin);
-            dataFrame.buffer[strcspn(dataFrame.buffer, "\n")] = 0;
             dataFrame.seqNo = nextSeqNo;
             buffer[nextSeqNo] = dataFrame;
         }
